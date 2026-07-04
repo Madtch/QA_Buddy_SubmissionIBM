@@ -1,0 +1,578 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>QA Buddy — User Login System Test Cases</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    background: #ffffff;
+    color: #1f2328;
+    padding: 32px 16px 48px;
+  }
+  .page { max-width: 760px; margin: 0 auto; }
+
+  /* Header */
+  .doc-header { border-bottom: 2px solid #e5e7eb; padding-bottom: 18px; margin-bottom: 28px; }
+  .doc-header h1 { font-size: 22px; font-weight: 700; color: #1f2328; }
+  .doc-header .meta { font-size: 12px; color: #57606a; margin-top: 6px; display: flex; gap: 20px; flex-wrap: wrap; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .badge-blue { background: #dbeafe; color: #1d4ed8; }
+  .badge-green { background: #dcfce7; color: #15803d; }
+  .badge-red { background: #fee2e2; color: #b91c1c; }
+  .badge-orange { background: #ffedd5; color: #c2410c; }
+  .badge-yellow { background: #fef9c3; color: #a16207; }
+  .badge-purple { background: #ede9fe; color: #6d28d9; }
+  .badge-gray { background: #f3f4f6; color: #374151; }
+
+  /* Section headings */
+  h2 { font-size: 17px; font-weight: 700; color: #1f2328; margin: 32px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; }
+  h3 { font-size: 14px; font-weight: 700; color: #3b82d4; margin: 22px 0 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* Prose */
+  p { margin-bottom: 10px; color: #1f2328; }
+  ul, ol { padding-left: 22px; margin-bottom: 10px; }
+  li { margin-bottom: 4px; }
+  .fact { color: #1f2328; }
+  .assumption { color: #c2410c; font-style: italic; }
+  .label { font-weight: 600; color: #57606a; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 13px; }
+  th { background: #f7f8fa; color: #1f2328; font-weight: 600; text-align: left; padding: 8px 10px; border: 1px solid #e5e7eb; }
+  td { padding: 7px 10px; border: 1px solid #e5e7eb; vertical-align: top; color: #1f2328; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  /* Test case cards */
+  .tc-card { border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 18px; overflow: hidden; }
+  .tc-card-header { padding: 8px 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #e5e7eb; }
+  .tc-card-header .tc-id { font-weight: 700; font-size: 13px; color: #1f2328; white-space: nowrap; }
+  .tc-card-header .tc-title { font-weight: 600; font-size: 13px; color: #1f2328; flex: 1; }
+  .tc-card table { margin: 0; }
+  .tc-card td:first-child { width: 170px; font-weight: 600; color: #57606a; background: #f7f8fa; white-space: nowrap; }
+  .tc-card tr:last-child td { border-bottom: none; }
+  .steps { padding: 0; margin: 0; list-style: decimal; padding-left: 18px; }
+  .steps li { margin-bottom: 3px; }
+
+  /* Priority/Severity coloring */
+  .pri-high { color: #b91c1c; font-weight: 700; }
+  .pri-medium { color: #c2410c; font-weight: 700; }
+  .pri-low { color: #15803d; font-weight: 700; }
+  .sev-critical { color: #b91c1c; font-weight: 700; }
+  .sev-major { color: #c2410c; font-weight: 700; }
+  .sev-minor { color: #15803d; font-weight: 700; }
+
+  /* Automation feasibility */
+  .auto-high { color: #15803d; font-weight: 600; }
+  .auto-medium { color: #c2410c; font-weight: 600; }
+  .auto-low { color: #b91c1c; font-weight: 600; }
+
+  /* Stats */
+  .stats-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .stat-box { flex: 1; min-width: 110px; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px 14px; background: #f7f8fa; text-align: center; }
+  .stat-box .stat-num { font-size: 26px; font-weight: 700; color: #3b82d4; }
+  .stat-box .stat-label { font-size: 11px; color: #57606a; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+
+  /* Gap list */
+  .gap-list { counter-reset: gap; padding: 0; list-style: none; }
+  .gap-list li { counter-increment: gap; margin-bottom: 10px; padding-left: 28px; position: relative; }
+  .gap-list li::before { content: counter(gap); position: absolute; left: 0; top: 1px; width: 20px; height: 20px; background: #3b82d4; color: #fff; font-size: 11px; font-weight: 700; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .gap-q { display: block; font-size: 12px; color: #57606a; margin-top: 2px; font-style: italic; }
+
+  /* Footer */
+  .footer { margin-top: 40px; padding-top: 14px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #57606a; }
+
+  /* Section divider */
+  .section-divider { border: none; border-top: 1px solid #e5e7eb; margin: 10px 0 24px; }
+
+  /* Summary paragraph */
+  .summary-box { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 6px; padding: 14px 16px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  
+  <div class="doc-header">
+    <h1>QA Buddy — User Login System</h1>
+    <div class="meta">
+      <span>Feature: <strong>User Login System</strong></span>
+      <span>Total TCs: <strong>22</strong></span>
+      <span>Generated by: <strong>QA Buddy</strong></span>
+      <span>IBM AI Builders Challenge</span>
+    </div>
+  </div>
+
+  
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-num">6</div><div class="stat-label">Positive</div></div>
+    <div class="stat-box"><div class="stat-num">8</div><div class="stat-label">Negative</div></div>
+    <div class="stat-box"><div class="stat-num">4</div><div class="stat-label">Boundary</div></div>
+    <div class="stat-box"><div class="stat-num">4</div><div class="stat-label">Edge Cases</div></div>
+    <div class="stat-box"><div class="stat-num">22</div><div class="stat-label">Total</div></div>
+  </div>
+
+  
+  <h2>1. Requirement Analysis</h2>
+  <p>The feature under test is a <strong>User Login System</strong> that authenticates users via email and password credentials. Upon successful authentication, users are redirected to a dashboard. The system enforces input validation rules and provides brute-force protection via account lockout.</p>
+  <table>
+    <tr><th>Attribute</th><th>Detail</th></tr>
+    <tr><td>Feature</td><td>User Login / Authentication</td></tr>
+    <tr><td>Actor(s)</td><td>Registered User</td></tr>
+    <tr><td>System Boundary</td><td>Login page → Authentication service → Dashboard redirect</td></tr>
+    <tr><td>Email Constraint</td><td>Must be in valid email format (stated)</td></tr>
+    <tr><td>Password Constraint</td><td>Minimum 8 characters (stated)</td></tr>
+    <tr><td>Lockout Rule</td><td>Account locked for 15 minutes after 5 consecutive failed attempts (stated)</td></tr>
+    <tr><td>Forgot Password</td><td>Option must be available on the login page (stated)</td></tr>
+    <tr><td>Success Behavior</td><td>Redirect to dashboard on successful login (stated)</td></tr>
+    <tr><td class="assumption">Max password length</td><td class="assumption">[ASSUMPTION] No upper limit stated — assumed unconstrained unless defined elsewhere</td></tr>
+    <tr><td class="assumption">Account existence check</td><td class="assumption">[ASSUMPTION] Login requires a pre-registered account in the system</td></tr>
+    <tr><td class="assumption">Lockout reset</td><td class="assumption">[ASSUMPTION] Lockout auto-releases after 15 minutes; no admin-unlock mechanism described</td></tr>
+    <tr><td class="assumption">Case sensitivity</td><td class="assumption">[ASSUMPTION] Email is case-insensitive; password is case-sensitive (industry norm)</td></tr>
+  </table>
+
+  
+  <h2>2. Testing Scope</h2>
+  <h3>In Scope</h3>
+  <ul>
+    <li>Email format validation on the login form</li>
+    <li>Password minimum-length enforcement</li>
+    <li>Successful login and dashboard redirect</li>
+    <li>Failed login with incorrect credentials</li>
+    <li>Account lockout after 5 failed attempts</li>
+    <li>15-minute lockout duration and auto-unlock</li>
+    <li>Presence and functionality of "Forgot Password" link</li>
+    <li>Empty field submissions</li>
+    <li>Boundary values for password length</li>
+    <li>Edge cases: special characters, SQL injection patterns, concurrent sessions</li>
+  </ul>
+  <h3>Out of Scope</h3>
+  <ul>
+    <li>User registration / sign-up flow (not specified)</li>
+    <li>Dashboard content and functionality (not specified)</li>
+    <li>Password reset / recovery flow internals (not specified)</li>
+    <li>OAuth / SSO / third-party login (not specified)</li>
+    <li>Session timeout and session management (not specified)</li>
+    <li>Two-factor authentication (not specified)</li>
+    <li>Performance / load testing (not specified)</li>
+  </ul>
+
+  
+  <h2>3. Preconditions</h2>
+  <ol>
+    <li>The login page is accessible via a supported web browser.</li>
+    <li>At least one registered user account exists in the system with known valid credentials.</li>
+    <li>The test environment is configured and running with a reachable authentication service.</li>
+    <li>The account used for lockout tests is reset to 0 failed attempts before each lockout test.</li>
+    <li>Network connectivity between the test client and the server is stable.</li>
+    <li>[ASSUMPTION] Test data includes accounts in both locked and unlocked states where required.</li>
+  </ol>
+
+  
+  <h2>4. Positive Test Cases</h2>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-001</span><span class="tc-title">Successful login with valid email and password</span><span class="badge badge-green">Positive</span><span class="badge badge-red">High</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>See global preconditions. Valid user account exists.</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Enter a valid registered email address (e.g., user@example.com).</li><li>Enter the correct password (≥ 8 characters).</li><li>Click the "Login" / "Sign In" button.</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>User is authenticated and redirected to the dashboard page.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-high">High</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-critical">Critical</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — Deterministic, repeatable happy-path; ideal for regression suite.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-002</span><span class="tc-title">Login with email address in mixed case</span><span class="badge badge-green">Positive</span><span class="badge badge-orange">Medium</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Account registered as lowercase email. [ASSUMPTION] Email is case-insensitive.</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Enter the registered email in mixed case (e.g., User@Example.COM).</li><li>Enter the correct password.</li><li>Click "Login".</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>User is authenticated and redirected to the dashboard.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-medium">Medium</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-major">Major</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — Simple input variation; easily parameterized.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-003</span><span class="tc-title">Forgot Password link is visible on the login page</span><span class="badge badge-green">Positive</span><span class="badge badge-red">High</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Login page is accessible.</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Visually inspect the page for a "Forgot Password" link or button.</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>A "Forgot Password" link is present and visible without requiring scroll [ASSUMPTION].</td></tr>
+      <tr><td>Priority</td><td><span class="pri-high">High</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-major">Major</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — UI element presence check; trivial for any UI automation framework.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-004</span><span class="tc-title">Forgot Password link is clickable and navigates to recovery flow</span><span class="badge badge-green">Positive</span><span class="badge badge-red">High</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Login page is accessible.</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Click the "Forgot Password" link.</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>User is navigated to the password recovery page / flow (not a 404 or error page).</td></tr>
+      <tr><td>Priority</td><td><span class="pri-high">High</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-major">Major</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — Navigation assertion; easily automated.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-005</span><span class="tc-title">Account auto-unlocks after 15-minute lockout expires</span><span class="badge badge-green">Positive</span><span class="badge badge-red">High</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Account is in a locked state (locked within the last 15 minutes).</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Wait for 15 minutes after the account was locked (or mock/advance the system clock).</li><li>Attempt to log in with valid credentials for the previously locked account.</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>Login succeeds and user is redirected to the dashboard.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-high">High</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-critical">Critical</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-medium">Medium</span> — Requires clock mocking or time travel; feasible with API-level setup.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-006</span><span class="tc-title">Failed attempt counter resets after successful login</span><span class="badge badge-green">Positive</span><span class="badge badge-orange">Medium</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Account has 1–4 failed attempts on record (not yet locked).</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Log in successfully with valid credentials.</li><li>Log out.</li><li>Enter an incorrect password and attempt to log in.</li><li>Observe the error message (should not indicate proximity to lockout from previous count).</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>Failed attempt counter is reset to 0 after successful login; the next failed attempt is attempt #1.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-medium">Medium</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-major">Major</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-medium">Medium</span> — Requires API/DB read to verify counter; automatable with backend access.</td></tr>
+    </table>
+  </div>
+
+  
+  <h2>5. Negative Test Cases</h2>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-007</span><span class="tc-title">Login with incorrect password</span><span class="badge badge-red">Negative</span><span class="badge badge-red">High</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>See global preconditions. Valid user account exists.</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Enter a valid registered email.</li><li>Enter an incorrect password.</li><li>Click "Login".</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>Login is rejected. An error message is displayed (e.g., "Invalid credentials"). User remains on the login page.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-high">High</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-critical">Critical</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — Core security path; must be in automated regression.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-008</span><span class="tc-title">Login with unregistered email address</span><span class="badge badge-red">Negative</span><span class="badge badge-red">High</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Email address does not exist in the system.</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Enter an email not registered in the system.</li><li>Enter any password.</li><li>Click "Login".</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>Login is rejected. A generic error is displayed (should NOT disclose whether the email exists — [ASSUMPTION] per security best practice).</td></tr>
+      <tr><td>Priority</td><td><span class="pri-high">High</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-critical">Critical</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — Straightforward assertion; automatable.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-009</span><span class="tc-title">Login with invalid email format</span><span class="badge badge-red">Negative</span><span class="badge badge-red">High</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Login page is accessible.</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Enter an invalidly formatted email (e.g., "notanemail", "user@", "@domain.com", "user@domain").</li><li>Enter any password.</li><li>Click "Login".</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>Form validation rejects the submission. An inline validation error is displayed (e.g., "Please enter a valid email address"). Login is not attempted.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-high">High</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-major">Major</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — Parameterized with multiple invalid email formats.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-010</span><span class="tc-title">Login with empty email field</span><span class="badge badge-red">Negative</span><span class="badge badge-red">High</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Login page is accessible.</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Leave the email field empty.</li><li>Enter a valid password.</li><li>Click "Login".</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>Form submission is blocked. A required-field validation error is shown for the email field.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-high">High</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-major">Major</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — Simple empty-field check; easily automated.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-011</span><span class="tc-title">Login with empty password field</span><span class="badge badge-red">Negative</span><span class="badge badge-red">High</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Login page is accessible.</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Enter a valid registered email.</li><li>Leave the password field empty.</li><li>Click "Login".</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>Form submission is blocked. A required-field validation error is shown for the password field.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-high">High</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-major">Major</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — Simple empty-field check; easily automated.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-012</span><span class="tc-title">Both email and password fields are empty</span><span class="badge badge-red">Negative</span><span class="badge badge-orange">Medium</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Login page is accessible.</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Leave both email and password fields empty.</li><li>Click "Login".</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>Form submission is blocked. Validation errors are displayed for both fields.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-medium">Medium</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-major">Major</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — Easily automated; combine with TC-010 and TC-011 in parameterized tests.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-013</span><span class="tc-title">Account is locked after 5 consecutive failed login attempts</span><span class="badge badge-red">Negative</span><span class="badge badge-red">High</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Account exists with 0 failed attempts. Account is NOT currently locked.</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Enter valid email and incorrect password. Click "Login". (Attempt 1)</li><li>Repeat step 2 four more times (Attempts 2–5).</li><li>Observe the response on the 5th failed attempt.</li><li>Attempt to log in with the correct password immediately after.</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>After the 5th failed attempt, the account is locked. An appropriate lockout message is displayed (e.g., "Account locked. Try again after 15 minutes."). Login with valid credentials is also rejected while locked.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-high">High</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-critical">Critical</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — Fully automatable; critical security test.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-014</span><span class="tc-title">Login attempt on a currently locked account with valid credentials</span><span class="badge badge-red">Negative</span><span class="badge badge-red">High</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Account is in locked state (locked less than 15 minutes ago).</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Enter the valid email and correct password for the locked account.</li><li>Click "Login".</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>Login is rejected. A lockout message is displayed indicating the remaining lockout duration or that the account is temporarily locked.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-high">High</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-critical">Critical</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — Precondition can be established via API; then assertion is straightforward.</td></tr>
+    </table>
+  </div>
+
+  
+  <h2>6. Boundary Value Test Cases</h2>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-015</span><span class="tc-title">Password exactly at minimum length (8 characters) — valid</span><span class="badge badge-purple">Boundary</span><span class="badge badge-red">High</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Account exists with a password that is exactly 8 characters long.</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Enter the valid email.</li><li>Enter the 8-character password.</li><li>Click "Login".</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>Login succeeds. User is redirected to the dashboard.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-high">High</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-critical">Critical</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — Precise boundary assertion; must be in automated test suite.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-016</span><span class="tc-title">Password one character below minimum length (7 characters) — invalid</span><span class="badge badge-purple">Boundary</span><span class="badge badge-red">High</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Login page is accessible.</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Enter a valid email.</li><li>Enter a 7-character password.</li><li>Click "Login".</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>Login is rejected with a validation error indicating the password is too short (e.g., "Password must be at least 8 characters").</td></tr>
+      <tr><td>Priority</td><td><span class="pri-high">High</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-major">Major</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — Boundary check; straightforward automation.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-017</span><span class="tc-title">Login attempt on the 4th failed attempt (one before lockout)</span><span class="badge badge-purple">Boundary</span><span class="badge badge-red">High</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Account has exactly 4 failed login attempts recorded (not yet locked).</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Enter valid email and incorrect password.</li><li>Click "Login".</li><li>Observe the response.</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>Login is rejected but account is NOT locked. An error message is displayed. [ASSUMPTION] A warning may indicate the remaining attempt(s) before lockout.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-high">High</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-critical">Critical</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — State can be seeded via API; boundary assertion on attempt count.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-018</span><span class="tc-title">Login attempt exactly at 15-minute lockout boundary (just expired)</span><span class="badge badge-purple">Boundary</span><span class="badge badge-orange">Medium</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Account was locked exactly 15 minutes ago (boundary: lock just expired).</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Set system/mock time to exactly 15 minutes after the lockout was applied.</li><li>Attempt login with valid credentials for the previously locked account.</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>Login succeeds at the exact 15-minute boundary. User is redirected to the dashboard.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-medium">Medium</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-major">Major</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-medium">Medium</span> — Requires time manipulation; feasible with API clock mocking.</td></tr>
+    </table>
+  </div>
+
+  
+  <h2>7. Edge Cases</h2>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-019</span><span class="tc-title">Login with SQL injection pattern in email field</span><span class="badge badge-blue">Edge</span><span class="badge badge-red">High</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Login page is accessible.</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Enter a SQL injection string in the email field (e.g., <code>' OR '1'='1</code> or <code>admin'--</code>).</li><li>Enter any password.</li><li>Click "Login".</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>Login is rejected. No SQL error or stack trace is exposed. System returns a standard validation or authentication error.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-high">High</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-critical">Critical</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — Security scan tools (OWASP ZAP) can automate; also scriptable.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-020</span><span class="tc-title">Login with extremely long email string (e.g., 500+ characters)</span><span class="badge badge-blue">Edge</span><span class="badge badge-orange">Medium</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Login page is accessible.</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Enter a syntactically valid email with a local-part of 500+ characters (e.g., aaa...aaa@domain.com).</li><li>Enter any password.</li><li>Click "Login".</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>System handles the input gracefully — either rejects with a validation message or truncates. No server crash, 500 error, or unhandled exception.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-medium">Medium</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-major">Major</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — String generation is trivial; assertion is a response code + no crash check.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-021</span><span class="tc-title">Password field contains only whitespace characters</span><span class="badge badge-blue">Edge</span><span class="badge badge-orange">Medium</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Login page is accessible.</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Navigate to the login page.</li><li>Enter a valid email.</li><li>Enter 8 or more space characters in the password field.</li><li>Click "Login".</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>Login is rejected. Whitespace-only input should not be treated as a valid password. [ASSUMPTION] System trims or rejects whitespace-only passwords.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-medium">Medium</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-major">Major</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-high">High</span> — Simple input variation; easily automated.</td></tr>
+    </table>
+  </div>
+
+  <div class="tc-card">
+    <div class="tc-card-header"><span class="tc-id">TC-022</span><span class="tc-title">Concurrent login attempts from two sessions simultaneously</span><span class="badge badge-blue">Edge</span><span class="badge badge-yellow">Low</span></div>
+    <table>
+      <tr><td>Preconditions</td><td>Valid user account exists. Two browser sessions or API clients are available.</td></tr>
+      <tr><td>Test Steps</td><td><ol class="steps"><li>Open two separate browser sessions to the login page simultaneously.</li><li>In both sessions, enter the same valid credentials.</li><li>Submit both login forms at approximately the same time.</li></ol></td></tr>
+      <tr><td>Expected Result</td><td>Both sessions either succeed independently (if multiple sessions are allowed [ASSUMPTION]) or one is rejected. No server error, data corruption, or race condition is observable.</td></tr>
+      <tr><td>Priority</td><td><span class="pri-low">Low</span></td></tr>
+      <tr><td>Severity</td><td><span class="sev-minor">Minor</span></td></tr>
+      <tr><td>Automation Feasibility</td><td><span class="auto-medium">Medium</span> — Requires parallel execution; achievable with Playwright or JMeter.</td></tr>
+    </table>
+  </div>
+
+  
+  <h2>8. Expected Results Summary</h2>
+  <table>
+    <tr><th>TC-ID</th><th>Expected Result</th></tr>
+    <tr><td>TC-001</td><td>User authenticated; redirected to dashboard.</td></tr>
+    <tr><td>TC-002</td><td>Mixed-case email accepted; redirected to dashboard.</td></tr>
+    <tr><td>TC-003</td><td>"Forgot Password" link is visible on login page.</td></tr>
+    <tr><td>TC-004</td><td>Clicking "Forgot Password" navigates to recovery flow.</td></tr>
+    <tr><td>TC-005</td><td>Login succeeds after 15-minute lockout expires.</td></tr>
+    <tr><td>TC-006</td><td>Failed attempt counter resets to 0 after successful login.</td></tr>
+    <tr><td>TC-007</td><td>Login rejected; generic error displayed; user stays on login page.</td></tr>
+    <tr><td>TC-008</td><td>Login rejected; generic error (no email enumeration).</td></tr>
+    <tr><td>TC-009</td><td>Inline email format validation error shown; login not attempted.</td></tr>
+    <tr><td>TC-010</td><td>Required-field error shown for empty email; login blocked.</td></tr>
+    <tr><td>TC-011</td><td>Required-field error shown for empty password; login blocked.</td></tr>
+    <tr><td>TC-012</td><td>Both fields show required-field errors; login blocked.</td></tr>
+    <tr><td>TC-013</td><td>Account locked after 5th failed attempt; lockout message shown.</td></tr>
+    <tr><td>TC-014</td><td>Login rejected with lockout message even with valid credentials.</td></tr>
+    <tr><td>TC-015</td><td>8-character password accepted; login succeeds.</td></tr>
+    <tr><td>TC-016</td><td>7-character password rejected with "too short" validation error.</td></tr>
+    <tr><td>TC-017</td><td>4th failed attempt rejected; account NOT locked yet.</td></tr>
+    <tr><td>TC-018</td><td>Login succeeds exactly at the 15-minute lockout boundary.</td></tr>
+    <tr><td>TC-019</td><td>SQL injection rejected; no error/trace exposed.</td></tr>
+    <tr><td>TC-020</td><td>Oversized email handled gracefully; no server crash.</td></tr>
+    <tr><td>TC-021</td><td>Whitespace-only password rejected.</td></tr>
+    <tr><td>TC-022</td><td>Concurrent logins handled gracefully; no race condition errors.</td></tr>
+  </table>
+
+  
+  <h2>9. Priority &amp; Severity Matrix</h2>
+  <table>
+    <tr><th>TC-ID</th><th>Title</th><th>Priority</th><th>Severity</th></tr>
+    <tr><td>TC-001</td><td>Successful login with valid credentials</td><td><span class="pri-high">High</span></td><td><span class="sev-critical">Critical</span></td></tr>
+    <tr><td>TC-002</td><td>Login with mixed-case email</td><td><span class="pri-medium">Medium</span></td><td><span class="sev-major">Major</span></td></tr>
+    <tr><td>TC-003</td><td>Forgot Password link visible</td><td><span class="pri-high">High</span></td><td><span class="sev-major">Major</span></td></tr>
+    <tr><td>TC-004</td><td>Forgot Password link navigates to recovery</td><td><span class="pri-high">High</span></td><td><span class="sev-major">Major</span></td></tr>
+    <tr><td>TC-005</td><td>Account auto-unlocks after 15 min</td><td><span class="pri-high">High</span></td><td><span class="sev-critical">Critical</span></td></tr>
+    <tr><td>TC-006</td><td>Failed counter resets after successful login</td><td><span class="pri-medium">Medium</span></td><td><span class="sev-major">Major</span></td></tr>
+    <tr><td>TC-007</td><td>Login with incorrect password</td><td><span class="pri-high">High</span></td><td><span class="sev-critical">Critical</span></td></tr>
+    <tr><td>TC-008</td><td>Login with unregistered email</td><td><span class="pri-high">High</span></td><td><span class="sev-critical">Critical</span></td></tr>
+    <tr><td>TC-009</td><td>Invalid email format</td><td><span class="pri-high">High</span></td><td><span class="sev-major">Major</span></td></tr>
+    <tr><td>TC-010</td><td>Empty email field</td><td><span class="pri-high">High</span></td><td><span class="sev-major">Major</span></td></tr>
+    <tr><td>TC-011</td><td>Empty password field</td><td><span class="pri-high">High</span></td><td><span class="sev-major">Major</span></td></tr>
+    <tr><td>TC-012</td><td>Both fields empty</td><td><span class="pri-medium">Medium</span></td><td><span class="sev-major">Major</span></td></tr>
+    <tr><td>TC-013</td><td>Lockout after 5 failed attempts</td><td><span class="pri-high">High</span></td><td><span class="sev-critical">Critical</span></td></tr>
+    <tr><td>TC-014</td><td>Login on locked account with valid credentials</td><td><span class="pri-high">High</span></td><td><span class="sev-critical">Critical</span></td></tr>
+    <tr><td>TC-015</td><td>Password exactly 8 chars (min boundary)</td><td><span class="pri-high">High</span></td><td><span class="sev-critical">Critical</span></td></tr>
+    <tr><td>TC-016</td><td>Password 7 chars (below min boundary)</td><td><span class="pri-high">High</span></td><td><span class="sev-major">Major</span></td></tr>
+    <tr><td>TC-017</td><td>4th failed attempt — not yet locked</td><td><span class="pri-high">High</span></td><td><span class="sev-critical">Critical</span></td></tr>
+    <tr><td>TC-018</td><td>Login at exact 15-min lockout boundary</td><td><span class="pri-medium">Medium</span></td><td><span class="sev-major">Major</span></td></tr>
+    <tr><td>TC-019</td><td>SQL injection in email field</td><td><span class="pri-high">High</span></td><td><span class="sev-critical">Critical</span></td></tr>
+    <tr><td>TC-020</td><td>Extremely long email string</td><td><span class="pri-medium">Medium</span></td><td><span class="sev-major">Major</span></td></tr>
+    <tr><td>TC-021</td><td>Whitespace-only password</td><td><span class="pri-medium">Medium</span></td><td><span class="sev-major">Major</span></td></tr>
+    <tr><td>TC-022</td><td>Concurrent login attempts</td><td><span class="pri-low">Low</span></td><td><span class="sev-minor">Minor</span></td></tr>
+  </table>
+
+  
+  <h2>10. Automation Recommendation</h2>
+  <h3>Strong Candidates for Automation</h3>
+  <p>TC-001, TC-007, TC-008, TC-009, TC-010, TC-011, TC-013, TC-014, TC-015, TC-016, TC-019 — these are deterministic, stable, repeat every regression cycle, and cover the most critical paths (authentication, validation, lockout, security). These should be the first to enter the automated regression suite.</p>
+  <h3>Moderate Automation (with setup effort)</h3>
+  <p>TC-005, TC-006, TC-017, TC-018 — require clock manipulation or database state seeding. Feasible with an API-driven test setup layer. Recommend implementing test fixtures via REST API or database seed scripts before automating these.</p>
+  <h3>Manual or Semi-Manual</h3>
+  <p>TC-022 (concurrent sessions) — requires parallel execution orchestration. Feasible with Playwright parallel workers or JMeter but adds complexity; recommend manual exploratory testing first, then automate in a later sprint.</p>
+  <h3>Recommended Tooling</h3>
+  <table>
+    <tr><th>Layer</th><th>Recommended Tool(s)</th><th>Rationale</th></tr>
+    <tr><td>UI / E2E</td><td>Playwright, Cypress</td><td>Modern, fast, cross-browser; excellent for form interaction and navigation assertions.</td></tr>
+    <tr><td>API / Auth Layer</td><td>REST Assured, Postman/Newman, pytest + requests</td><td>For state seeding (lockout counter), backend validation, and security tests.</td></tr>
+    <tr><td>Security Scanning</td><td>OWASP ZAP, Burp Suite</td><td>Automates injection and vulnerability detection (TC-019, TC-020).</td></tr>
+    <tr><td>CI Integration</td><td>GitHub Actions, Jenkins</td><td>Run regression suite on every pull request and deployment.</td></tr>
+  </table>
+
+  
+  <h2>11. Requirement Gaps &amp; Ambiguities</h2>
+  <ul class="gap-list">
+    <li>
+      <strong>Maximum password length is undefined.</strong>
+      <span class="gap-q">Q: Is there an upper bound on password length? Without this, boundary testing is incomplete and very long passwords could cause DoS via bcrypt cost.</span>
+    </li>
+    <li>
+      <strong>Error message wording is not specified.</strong>
+      <span class="gap-q">Q: Should the error message be generic ("Invalid credentials") for both wrong password and unregistered email, or different? Generic messages prevent email enumeration — this should be explicitly decided.</span>
+    </li>
+    <li>
+      <strong>Lockout reset mechanism is not defined.</strong>
+      <span class="gap-q">Q: Does the lockout auto-expire after exactly 15 minutes from the first failed attempt, the 5th failed attempt, or the most recent attempt? Is there an admin override to unlock accounts?</span>
+    </li>
+    <li>
+      <strong>Failed attempt counter reset policy is not specified.</strong>
+      <span class="gap-q">Q: Does a successful login reset the failed attempt counter to 0? Does the counter reset automatically after 15 minutes even without a successful login?</span>
+    </li>
+    <li>
+      <strong>Email case sensitivity is not defined.</strong>
+      <span class="gap-q">Q: Is email matching case-insensitive (industry standard) or case-sensitive? This directly impacts TC-002.</span>
+    </li>
+    <li>
+      <strong>"Forgot Password" flow internals are not specified.</strong>
+      <span class="gap-q">Q: What does the Forgot Password flow do? (Email link, OTP, security questions?) This is out of scope for this document but will require its own test cases.</span>
+    </li>
+    <li>
+      <strong>No mention of HTTPS / secure transport.</strong>
+      <span class="gap-q">Q: Is the login page served over HTTPS? Are credentials transmitted securely? This is a security requirement that should be stated explicitly.</span>
+    </li>
+    <li>
+      <strong>Multiple concurrent active sessions not addressed.</strong>
+      <span class="gap-q">Q: Can the same user be logged in from multiple devices simultaneously? If not, what is the expected behavior when a second login occurs?</span>
+    </li>
+  </ul>
+
+  
+  <h2>12. Testing Summary</h2>
+  <div class="summary-box">
+    <p>A total of <strong>22 test cases</strong> have been generated for the User Login System, providing comprehensive coverage across authentication, input validation, brute-force protection, and recovery flows. Critical risk areas include the account lockout mechanism (TC-013, TC-014, TC-017, TC-018) and security hardening (TC-019), both of which are rated Critical severity and should be prioritized in the first test execution cycle. Eight requirement gaps were identified — notably the undefined lockout reset policy, missing maximum password length, and unspecified error message wording — which must be resolved before the test suite can be considered complete. All High-priority test cases (15 of 22) are strong candidates for automated regression testing, with UI automation recommended via Playwright and API-layer state seeding for lockout-related scenarios.</p>
+  </div>
+  <table>
+    <tr><th>Category</th><th>Count</th></tr>
+    <tr><td>Positive</td><td>6</td></tr>
+    <tr><td>Negative</td><td>8</td></tr>
+    <tr><td>Boundary</td><td>4</td></tr>
+    <tr><td>Edge Cases</td><td>4</td></tr>
+    <tr><td><strong>Total</strong></td><td><strong>22</strong></td></tr>
+  </table>
+
+  <div class="footer">Made with IBM Bob</div>
+</div>
+</body>
+</html>
